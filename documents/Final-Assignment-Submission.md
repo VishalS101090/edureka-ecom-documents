@@ -1,9 +1,28 @@
 # E-Commerce Microservices Platform - Final Assignment Submission
 
 **Project Name:** E-Commerce Microservices Application  
-**Technology Stack:** Spring Boot 3, Spring Cloud, MongoDB, Apache Kafka, Docker, Kubernetes  
-**Submission Date:** February 17, 2026  
-**Author:** MSA Training Project
+**Technology Stack:** Spring Boot 3, Spring Cloud, MongoDB, Apache Kafka, Docker, Kubernetes    
+**Author:** Vishal Shinde
+
+---
+
+## 📦 Repository Links
+
+### Microservices Source Code
+All microservice projects are located in branch `feature` of the respective repositories:
+
+| Service | Repository Path |
+|---------|----------------|
+| **Discovery Server** | [GitHub](https://github.com/VishalS101090/edureka-ecom-discovery-server/tree/feature) |
+| **API Gateway** | [GitHub](https://github.com/VishalS101090/edureka-ecom-api-gateway/tree/feature) |
+| **Product Service** | [GitHub](https://github.com/VishalS101090/edureka-ecom-product-service/tree/feature) |
+| **Order Service** | [GitHub](https://github.com/VishalS101090/edureka-ecom-order-service/tree/feature) |
+| **Inventory Service** | [GitHub](https://github.com/VishalS101090/edureka-ecom-inventory-service/tree/feature) |
+| **Customer Service** | [GitHub](https://github.com/VishalS101090/edureka-ecom-customer-service/tree/feature) |
+| **Payment Service** | [GitHub](https://github.com/VishalS101090/edureka-ecom-payment-service/tree/feature) |
+
+### Infrastructure & Documentation
+- **Kubernetes Manifests:** [GitHub](https://github.com/VishalS101090/edureka-ecom-documents/tree/feature/docker_files/k8s-infrastructure)
 
 ---
 
@@ -110,6 +129,82 @@ docker ps
 **Stop Infrastructure:**
 ```bash
 docker-compose down
+```
+
+### 2.3 Kubernetes Infrastructure Deployment
+
+For production-ready Kubernetes deployment, infrastructure services are available as Kubernetes manifests.
+
+**Location:** `edureka-ecom-documents/docker_files/k8s-infrastructure/`
+
+#### Available Infrastructure Services
+
+| Service | File | Type | Access |
+|---------|------|------|--------|
+| **MongoDB** | `mongodb.yaml` | ClusterIP | Internal: mongodb-service:27017 |
+| **Kafka** | `kafka.yaml` | ClusterIP | Internal: kafka-service:9092 |
+| **Zookeeper** | `zookeeper.yaml` | ClusterIP | Internal: zookeeper-service:2181 |
+| **Zipkin** | `zipkin.yaml` | NodePort | Browser: localhost:30000<br/>Internal: zipkin-service:9411 |
+
+#### Quick Deployment
+
+**Deploy All Infrastructure Services:**
+```powershell
+cd edureka-ecom-documents/docker_files/k8s-infrastructure
+
+# Deploy in order (dependencies first)
+kubectl apply -f mongodb.yaml
+kubectl apply -f zookeeper.yaml
+kubectl apply -f kafka.yaml
+kubectl apply -f zipkin.yaml
+```
+
+**Verify Deployments:**
+```powershell
+# Check all pods are running
+kubectl get pods
+
+# Check services
+kubectl get svc
+```
+
+#### Service Configuration Details
+
+**MongoDB:**
+- Database for all microservices (database-per-service pattern)
+- Uses PersistentVolumeClaim for data persistence
+- Internal access: `mongodb-service:27017`
+
+**Kafka + Zookeeper:**
+- Event streaming for Order → Inventory/Payment communication
+- Zookeeper manages Kafka cluster
+- Internal access: `kafka-service:9092`
+
+**Zipkin:**
+- Distributed tracing UI
+- Browser access: `http://localhost:30000`
+- Microservices endpoint: `http://zipkin-service:9411`
+- In-memory storage (default)
+
+#### Important Notes
+
+⚠️ **Deployment Order Matters:**
+1. MongoDB must be running before microservices start
+2. Zookeeper must be running before Kafka
+3. Kafka must be running before Inventory/Payment services
+
+✅ **Access Patterns:**
+- **ClusterIP services**: Only accessible within Kubernetes cluster
+- **NodePort services**: Accessible from localhost on specified port
+- **Microservices**: Always use internal service names (e.g., `mongodb-service`)
+
+#### Cleanup
+```powershell
+# Delete all infrastructure
+kubectl delete -f mongodb.yaml
+kubectl delete -f kafka.yaml
+kubectl delete -f zookeeper.yaml
+kubectl delete -f zipkin.yaml
 ```
 
 ---
@@ -1225,8 +1320,7 @@ metadata:
 spec:
   selector:
     app: {service-name}
-  type: ClusterIP  # LoadBalancer for gateway only
-  ports:
+  type: LoadBalancer  # LoadBalancer for gateway only but now keep this fo all service to access vai swagger and postman
     - protocol: TCP
       port: {port}
       targetPort: {port}
