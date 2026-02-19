@@ -1195,7 +1195,7 @@ spec:
       containers:
         - name: {service-name}
           image: {dockerhub-user}/{service-name}:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - containerPort: {port}
           env:

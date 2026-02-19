@@ -374,7 +374,7 @@ kubectl exec -it <pod-name> -- ps aux | grep java
 
 **Docker Desktop uses local Docker images automatically:**
 
-If you have built an image locally with Docker Desktop, Kubernetes can use it directly with `imagePullPolicy: IfNotPresent` or `imagePullPolicy: Never`.
+If you have built an image locally with Docker Desktop, Kubernetes can use it directly with `imagePullPolicy: Always` or `imagePullPolicy: Never`.
 
 ### Service Not Accessible
 

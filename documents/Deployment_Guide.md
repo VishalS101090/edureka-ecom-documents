@@ -55,7 +55,7 @@ mvn clean package -DskipTests
 2) Build and push Docker images (example for product-service):
 
 ```bash
-docker build -t <your-user>/product-service:latest ./product-service
+docker build -t <your-user>/product-service:latest .
 docker push <your-user>/product-service:latest
 ```
 
